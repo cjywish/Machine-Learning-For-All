@@ -1,0 +1,327 @@
+##################################################################################
+# R데이터 다루기 -------------------------------------------------------------
+##################################################################################
+
+# (1) 흐름제어 및 함수 ----------------------------------------------------
+
+# if문
+if(T) {
+  print('hello')
+} else {
+  print('world')
+}
+
+# for문
+for (i in 1:10) {
+  print(i)
+}
+
+# 함수만들기
+# n 이하의 자연수를 벡터로 출력하기
+
+# 빈 벡터를 선언
+result <- c()
+
+for (i in 1:10) {
+  result <- c(result, i)
+}
+result
+
+#위 구문을 함수로 만들면...
+F_Int <- function(n) {
+  result <- c()
+  
+  for (i in 1:n) {
+    result <- c(result, i)
+  }
+  result
+}
+
+F_Int(5)
+
+
+# n 이하의 짝수를 벡터로 출력하기
+evenNumber <- function(n) {
+  result <- c()
+  for (i in 1:n) {
+    if (i %% 2 == 0){
+      result <- c(result, i)
+    }
+  }
+  result
+} 
+
+evenNumber()
+
+# 퀴즈1
+# n 이하의 짝수를 벡터로 출력하는데, 문자인 경우를 처리하시오.
+# is.numeric 함수를 이용하시오.
+
+
+
+
+
+
+#함수 사용하기
+evenNumber('a')
+evenNumber(20)
+
+# 퀴즈2
+# 10 이상의 숫자n을 받아서 10~n 모든 수를 제곱하여 
+# 벡터형으로 반환하는 함수를 만드시오.
+
+
+
+
+
+# (2) 파일 가져오기 & 파일로 저장하기 ----------------------------------------------------
+
+#working directory
+getwd()
+
+#아래 경로에는 여러분의 작업 디렉토리 경로를 넣으세요.
+setwd("C:/temp/R/")
+
+df1 <- read.csv("titanic.0.csv")
+head(df1)
+
+# 인터넷에 있는 데이터셋 받아오기
+ds.0 <- read.csv("https://archive.ics.uci.edu/ml/machine-learning-databases/car/car.data")
+head(ds.0)
+
+write.csv(ds.0, "test1.csv")
+
+
+# (3) 작업환경 저장하기 & 불러오기  ----------------------------------------------------
+
+save.image("test.RData")
+rm(list=ls())
+load("test.RData")
+
+#작업환경 저장 파일 이름에 timestamp 추가하기
+Sys.time()
+tstamp <- gsub(":", "", Sys.time())
+RDname <- paste("DS_", tstamp,".RData", sep="")
+save.image(RDname)
+
+rm(ds.0)
+rm(list = ls())
+
+load(RDname)
+
+
+# (4) 데이터프레임 열 추가, 변경, 삭제  ----------------------------------------------------
+library(ggplot2)
+data(package = "ggplot2")
+
+str(diamonds)
+?diamonds
+dia <- data.frame(diamonds)
+str(dia)
+dia$x
+dia$y
+
+3 * NA
+
+dia$volume <- dia$x * dia$y * dia$z
+head(dia)
+dia$volume <- round(dia$volume,1)
+dia$volume <- round(dia$volume,0)
+dia$volume2 <- NA
+head(dia)
+dia$volume2 <- NULL
+head(dia)
+dia$volume <- NULL
+head(dia)
+
+
+# (5) 원하는 데이터 조회하기  ----------------------------------------------------
+
+dia$color == "E" & dia$price > 1000
+str(dia)
+#index 이용하기
+dia[dia$color == "E" & dia$price > 1000
+    , c("carat", "cut", "color", "price")]
+
+dia$color == "E" & dia$price > 1000
+which(dia$color == "E" & dia$price > 1000)
+
+dia[which(dia$color == "E" & dia$price > 1000)
+    , c("carat", "cut", "color", "price")]
+
+dia[5171,]
+
+attach(dia)
+dia[which(color == "E" & price > 1000)
+    , c("carat", "cut", "color", "price")]
+detach(dia)
+
+
+# subset 이용하기
+subset(dia, select = c("carat", "color", "price")
+       , subset = (color == "E" & price > 1000))
+
+max(dia$price)
+subset(dia, subset = (price == max(dia$price))) 
+dia[dia$price == max(dia$price), ]
+
+T9 <- subset(airquality, select = "Temp", subset = (Month == 9))
+str(T9)
+T9$Temp
+
+mean(T9$Temp)
+
+aggregate(price ~ color, dia, mean)
+aggregate(price ~ color, dia, sd)
+# (6) 데이터 프레임 합치기  ----------------------------------------------------
+ls()
+rm(list = ls())
+
+cust_id <- c("c01","c02","c03","c04")
+
+last_name <- c("Kim", "Lee", "Choi", "Park")
+
+cust_mart_1 <- data.frame(cust_id, last_name)
+
+cust_mart_1
+
+cust_mart_2 <- data.frame(cust_id = c("c05", "c06", "c07")
+                          , last_name = c("Bae", "Kim", "Lim"))
+
+cust_mart_2
+
+cust_mart_12 <- rbind(cust_mart_1, cust_mart_2)
+
+cust_mart_12
+
+
+# cbind
+cust_mart_5 <- data.frame(age = c(20, 25, 19, 40, 32, 39, 28)
+                          , income = c(2500, 2700, 0, 7000, 3400, 3600, 2900))
+
+cust_mart_5
+cust_mart_125 <- cbind(cust_mart_12, cust_mart_5)
+cust_mart_125
+
+str(cust_mart_125)
+
+
+# (7) dplyr 패키지  ----------------------------------------------------
+
+install.packages("dplyr")
+library(dplyr)
+
+head(diamonds, 10)
+class(diamonds)
+rm(list=ls())
+
+# select
+diamonds[,c("carat","cut","color")]
+subset(diamonds, select = c("carat","cut","color"))
+select(diamonds, carat, cut, color)[,2]
+
+# filter
+diamonds[diamonds$carat >= 1 & diamonds$cut == 'Premium', ]
+subset(diamonds, subset = (carat >= 1 & cut == 'Premium'))
+filter(diamonds, carat >= 1, cut == 'Premium')
+filter(diamonds, carat >= 1 & cut == 'Premium')
+filter(diamonds, carat >= 1 | cut == 'Premium')
+
+dia <- data.frame(diamonds)
+
+# mutate
+head(mutate(dia, volume = round(x*y*z, digits = 2)))
+
+dia <- mutate(dia, volume = round(x*y*z, digits = 2))
+head(dia)
+
+dia0 <- diamonds
+dia0$volume <- round(dia0$x*dia0$y*dia0$z, digits = 2)
+
+head(dia0)
+select(dia0, cut, price, carat, x,y,z,volume)
+
+#변수 삭제1
+dia$volume <- NULL
+str(dia)
+
+#열,행 번호에 -를 붙이면 그 인덱스에 해당하는 열/행을 제외한다.
+head(dia)
+dia[1:6,-10]
+dia <- dia[,-10]
+str(dia)
+
+# arrange
+
+arrange(diamonds, price)
+arrange(diamonds, desc(price))
+
+# group_by
+
+groupby.df <- group_by(diamonds, color)
+groupby.df
+summarise(groupby.df, AvgPrice = mean(price))
+
+groupby.df <- group_by(diamonds, cut)
+summarise(groupby.df, AvgPrice = mean(price))
+
+aggregate(price ~ color, diamonds, mean)
+
+# %>%
+group_by(diamonds, color) %>% summarise(AvgPrice = mean(price))
+
+group_by(diamonds, color) %>% 
+  summarise(AvgPrice = mean(price), maxPrice = max(price)) %>%
+  arrange(desc(maxPrice))
+diamonds %>%
+  group_by(color) %>% 
+  summarise(AvgPrice = mean(price), maxPrice = max(price)) %>%
+  arrange(desc(maxPrice))
+
+group_by(diamonds, color) %>% summarise(AvgPrice = mean(price))
+
+group_by(diamonds, color) %>% 
+ summarise(AvgPrice = mean(price))
+
+
+# (8) apply 함수들  ----------------------------------------------------
+if (require(ggplot2)) {
+  require(ggplot2)
+} else {
+  install.packages("ggplot2")
+  require(ggplot2)
+}
+
+#임의의 수를 생성해보자.
+sample(1:10,5)
+sample(1:10,5, replace = TRUE)
+
+#set.seed(숫자) 숫자가 같으면 동일한 결과를 얻는다.
+set.seed(10)
+sample(1:10,5)
+
+#정규분포를 이루는 임의의 값 추출하기
+?rnorm
+
+a <- rnorm(10000)
+rnorm(100, mean = 0, sd = 1)
+mean(a); sd(a)
+
+x<-matrix(rnorm(30), nrow=5, ncol=6);x
+apply(x, 2 ,sum)
+apply(x, 2 ,max)
+
+head(cars)
+
+apply(cars, 2 ,mean)
+apply(cars, 2 ,max)
+
+la <- lapply(cars, sum)
+str(la)
+la$dist
+
+sa <- sapply(cars, sum)
+
+class(sa)
+
+tapply(diamonds$carat, diamonds$color, mean)
