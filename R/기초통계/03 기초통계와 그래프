@@ -117,3 +117,45 @@ qplot(carat, data = diamonds, geom = "histogram", fill = color
 ?economics
 head(economics)
 qplot(date, unemploy / pop, data = economics, geom = "line")
+
+rm(list = ls())
+
+##################################################################################
+# 연습문제 ----------------------------------------------------------------
+##################################################################################
+
+#1. airquality 데이터 셋을 air2 이름으로 복사하시오.
+head(airquality)
+head(df)
+air2 <- airquality
+
+#2. air2 각 칼럼별로 NA가 몇개씩 있는지 찾으시오.
+colSums(is.na(air2))
+
+#3. Solar.R 중 NA값을 0으로 지정하시오.
+air2$Solar.R[is.na(air2$Solar.R)] <- 0
+
+# 다음의 구문을 실행하시오.
+listAQ <- list(name = "airquality"
+     , TargetVariable = airquality$Ozone
+     , dataset = airquality)
+
+listAQ <- list(name='airquality'
+               , TrgetVariable = qirquality$Ozone
+               , dtaset = airquality)
+str(airquality)
+#4. listAQ의 구조를 살펴보시오.
+str(listAQ)
+
+#5. listAQ 에서 두번째 변수의 세번째 값을 출력하시오.
+listAQ[[2]][3]
+listAQ$TargetVariable[3]
+
+# keypoint
+#6. listAQ 중 세번째 변수(데이터프레임)에 포함된 Temp변수를 조회하시오.
+a <- listAQ[[3]][4]
+b <- listAQ$dataset[4]
+c <- listAQ$dataset$Temp
+class(a) # dataframe
+class(b) # dataframe
+class(c) # integer
