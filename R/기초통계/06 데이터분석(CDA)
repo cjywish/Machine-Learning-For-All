@@ -106,5 +106,70 @@ price, depth
 # 6. 5번의 변수 역시 cor.test를 이용해 P-value를 확인하시오.
 cor.test(dsmall$price, dsmall$table)
 
+#==================================================
+# 연습문제 : 카이제곱검정
+#==================================================
 
+# Titanic 데이터셋에서, Survived와 다음의 범주형 변수들 간에 카이 제곱 검정을 하시오.
+# P value를 보고 의미를 설명하시오.
+
+# 1. Sex
+mosaicplot(Sex ~ Survived
+           , data = titanic.0, color = TRUE)
+chisq.test(titanic.0$Sex, titanic.0$Survived)
+#X-squared = 260.72, df = 1, p-value < 2.2e-16
+
+# 2. Pclass
+mosaicplot(Pclass ~ Survived
+           , data = titanic.0, color = TRUE)
+chisq.test(titanic.0$Pclass, titanic.0$Survived)
+prop.table(table(titanic.0$Pclass, titanic.0$Survived),1)
+#X-squared = 102.89, df = 2, p-value < 2.2e-16
+
+# 3. Embarked
+mosaicplot(Embarked ~ Survived
+           , data = titanic.0, color = TRUE)
+prop.table(table(titanic.0$Embarked, titanic.0$Survived),1)
+
+chisq.test(titanic.0$Embarked, titanic.0$Survived)
+#X-squared = 25.964, df = 2, p-value = 2.301e-06
+
+
+# 4. AgeGroup
+mosaicplot(AgeGroup ~ Survived
+           , data = titanic.0, color = TRUE)
+prop.table(table(titanic.0$AgeGroup, titanic.0$Survived),1)
+
+chisq.test(titanic.0$AgeGroup, titanic.0$Survived)
+# X-squared = 23.147, df = 8, p-value = 0.00318
+
+# 5. Mother
+mosaicplot(Mother ~ Survived
+           , data = titanic.0, color = TRUE)
+chisq.test(titanic.0$Mother, titanic.0$Survived)
+
+prop.table(table(titanic.0$Mother, titanic.0$Survived),1)
+
+# X-squared = 26.119, df = 1, p-value = 3.211e-07
+
+#==================================================
+# 연습문제 : 로지스틱 회귀를 이용한 검정
+#==================================================
+
+# Titanic 데이터셋에서, Survived와 다음의 연속형 변수들 간에 
+# 로지스틱 회귀를 이용한 검정을 수행하시오.
+# P value를 보고 의미를 설명하시오.
+
+# 1. Age
+a<-glm(Survived ~ Age, family = binomial, data = titanic.0  )
+summary(a)
+
+
+# 2. Fare
+a<-glm(Survived ~ Fare, family = binomial, data = titanic.0  )
+summary(a)
+
+# 3. Family
+a<-glm(Survived ~ Family, family = binomial, data = titanic.0  )
+summary(a)
 
