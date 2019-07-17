@@ -1,0 +1,108 @@
+data("iris")
+df = iris
+str(df)
+head(df)
+df[1:3, "Sepal.Length"]
+df[1:3, c("Sepal.Length", "Sepal.Width")]
+# [asdf]
+
+# 등분산 테스트 : 
+# p-value < 0.05 이면 두 집단의 분산에 차이가 있다. 
+# (귀무가설 : 두 분산에 차이가 없다. / 대립가설 : 두 분산에 차이가 있다.)
+var.test(df$Sepal.Length, df$Sepal.Width)
+
+# 두 집단의 평균 차이 분석
+# 귀무가설 : 두집단의 평균의 차이가 없다. / 대립가설 : 두집단의 평균의 차이가 있다.
+t.test(df$Sepal.Length, df$Sepal.Width)
+
+#### 04. 피어슨 상관계수 ####
+cor(x = c(1, 2, 4, 5),
+    y = c(2, 2, 3, 4))
+
+cor.test(x = c(1, 2, 4, 5),
+         y = c(2, 2, 3, 4))
+
+cor.test(x = c(1, 2, 4, 5),
+         y = c(2, 2, 3, 4), 
+         conf.level = 0.99)
+1 - 0.99
+
+cor.test(x = c(1, 2, 4, 5),
+         y = c(2, 2, 3, 4),
+         method = "spearman")
+?cor.test
+
+df = read.csv("bike.csv", stringsAsFactors = FALSE)
+head(df, 2)
+str(df)
+
+cor(df$temp, df$atemp)
+cor.test(df$temp, df$atemp)
+cor(df[, c("temp", "atemp", "casual")])
+
+cor.test(x = c(1, 2, 4, 5),
+         y = c(2, 4, 3, 7),
+         method = "spearman")
+
+
+df = read.csv("./data_scripts/DS_class_survey.csv",
+              stringsAsFactors = FALSE)
+head(df)
+cor.test(df$pre, df$self)
+cor.test(df$pre, df$self, method = "spearman")
+
+library("data.table")
+as.numeric("a")
+"a" + 1
+
+
+data("diamonds", package = "ggplot2")
+head(diamonds)
+
+class(diamonds$color)
+diamonds$color[1]
+class(diamonds$clarity)
+diamonds$clarity[1]
+
+cor(x = as.numeric(diamonds$color),
+    y = as.numeric(diamonds$clarity), 
+    method = "spearman")
+
+cor.test(x = as.numeric(diamonds$color),
+         y = as.numeric(diamonds$clarity), 
+         method = "spearman")
+
+t(t(colnames(diamonds)))
+cor(diamonds[, 5:10])
+round(cor(diamonds[, 5:10]), 2)
+
+
+bike = read.csv("bike.csv", stringsAsFactors = FALSE)
+head(bike, 2)
+t(t(colnames(bike)))
+cor_matrix = cor(bike[, 2:9])
+# install.packages("corrplot")
+library("corrplot")
+
+corrplot(cor_matrix)
+
+lm1 = lm(Petal.Length ~ Petal.Width, data = iris)
+lm2 = lm(Petal.Length ~ ., data = iris[, 3:4])
+lm3 = lm(Petal.Length ~ . -Species, data = iris)
+lm4 = lm(Petal.Length ~ . -Species -1, data = iris)
+summary(lm4)
+
+lm1 = lm(formula("Petal.Length ~ Petal.Width"),
+         data = iris)
+
+model = lm(Petal.Length ~ . -Species, data = iris)
+library("car")
+vif(model)
+
+
+df = read.csv("diamonds.csv", stringsAsFactors = FALSE)
+head(df)
+
+model = lm(price ~ . -cut -color -clarity, data = df)
+summary(model)
+vif(model)
