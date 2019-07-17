@@ -106,3 +106,208 @@ head(df)
 model = lm(price ~ . -cut -color -clarity, data = df)
 summary(model)
 vif(model)
+
+###############################
+# 연습문제 1 - logistic regression
+###############################
+library("fastDummies")
+library("car")
+library("ROCR")
+
+df = read.csv("horse_race.csv", stringsAsFactors = FALSE)
+head(df, 2)
+unique(df$rcResult)
+
+#model = glm(rcResult ~ ., data = df, family = "binomial")
+str(df)
+
+table(df$chulNo)
+table(df$weather)
+
+df[, "rcResult_n"] <- ifelse(df$rcResult == "pass", 1, 0)
+df = dummy_cols(df, select_columns = "chulNo",  remove_first_dummy = TRUE)
+df = dummy_cols(df, select_columns = "hrSex",   remove_first_dummy = TRUE)
+df = dummy_cols(df, select_columns = "rcType",  remove_first_dummy = TRUE)
+df = dummy_cols(df, select_columns = "rcClass", remove_first_dummy = TRUE)
+df = dummy_cols(df, select_columns = "track",   remove_first_dummy = TRUE)
+df = dummy_cols(df, select_columns = "weather", remove_first_dummy = TRUE)
+t(t(colnames(df)))
+
+# remove: chulNo, hrSex, rcType, rcClass, track weather, rcResult
+df_1 <- df[, -c(1, 2, 6, 7, 20, 21, 47)]
+t(t(colnames(df_1)))
+
+df_1[, "trRcCntT_n"] <- as.numeric(gsub("[^0-9]", "", df_1$trRcCntT))
+t(t(colnames(df_1)))
+
+# remove: trRcCnt
+df_1 <- df_1[, -35]
+head(df_1, 2)
+str(df_1)
+
+set.seed(123)
+train_rows <- sample(1:nrow(df_1), 15000)
+df_train <- df_1[train_rows, ]
+df_test <- df_1[-train_rows, ]
+
+nrow(df_train)
+nrow(df_test)
+table(df_train$rcClass_M_open)
+head(df_train, 2)
+str(df_train)
+
+#model <- glm(rcResult_n ~ ., data = df_train, family = binomial("logit"), maxit = 100)
+model <- glm(rcResult_n ~ . -rcClass_M_open -jkOrd2CntT -meanTemperature
+             -trRcCntT_n -jkWgOther -trOrd2CntT -jkOrd1CntT
+             -chulNo_2 -chulNo_3 -chulNo_4,
+             data = df_train,
+             family = binomial("logit"),
+             maxit = 100)
+summary(model)
+vif(model)
+
+model_pred <- predict(model, newdata = df_test, type = "response")
+model_pred_2 <- ifelse(test = model_pred > 0.5, yes = 1, no = 0)
+mis_class_err = round(mean(model_pred_2 != df_test$rcResult_n), 3)
+print(paste("accuracy", 1-mis_class_err))
+
+pr = prediction(model_pred, df_test$rcResult_n)
+prf = performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
+auc = performance(pr, measure = "auc")
+auc@y.values[[1]]
+
+#################################################
+#  연습문제 2 
+###############################################
+# 1. "ggplot2" 패키지의 diamonds 데이터를 불러와서 df 객체에 저장하시오.
+data("diamonds", package = "ggplot2")
+head(diamonds, 2)
+df = as.data.frame(diamonds)
+class(df)
+
+# 2. df 객체의 row 개수는 몇 개인가?
+nrow(df)
+
+# 3. df 객체의 column 개수는 몇 개인가?
+ncol(df)
+
+# 4. df 객체의 데이터에는 색상[color]이 몇 종류 기록되어있는가?
+unique(df$color)
+length(unique(df$color))
+
+# 5. df 객체의 데이터에는 투명도[clarity]가 몇 종류 기록되어있는가?
+length(unique(df$clarity))
+
+# 6. 가장 비싼 다이아몬드의 가격은 얼마인가?
+max(df$price)
+
+# 7. 색상[color]이 "E"이면서 가격[price]이 4000이 넘는 다이아몬드는 몇 개인가?
+# 1)
+df_sub = df[(df$color == "E") & (df$price > 4000),]
+nrow(df_sub)
+
+# 2)
+sum((df$color == "E") & (df$price > 4000))
+
+# 8. 세공[cut]이 "Ideal" 이면서 색상[color]이 "E"인 다이아몬드의 가격 평균은 얼마인가?
+# (반올림하여 소수점 둘 째 자리까지 표기하시오)
+# 1)
+mean(df[(df$cut == "Ideal") & (df$color == "E"), "price"])
+
+# 2)
+aggregate(data = df, 
+          price ~ cut + color,
+          FUN = "mean")
+
+# SELECT AVG(price), cut FROM df GROUP BY cut
+
+
+# 9. 색상[color]에 따른 가격[price]의 평균을 구해보시오.
+aggregate(data = df, price ~ color, FUN = "mean")
+
+# 10. 세공[cut]이 "Good"이거나 "Premium"이면서 
+# 색상[color]이 "E"인 데이터를 추출하여 df_sub 객체에 저장하시오.
+df_sub = df[(df$cut %in% c("Good", "Premium")) &
+              (df$color == "E"),]
+
+# 11. df_sub 객체의 가격 평균은 얼마인가?
+mean(df_sub$price)
+
+# 12. df_sub 객체의 투명도[clarity] 변수에 있는 원소의 비중을 확인하시오. 가장 비중이 높은 것은 무엇인가?
+# (정답 예시: SI2, 10.12%)
+prop.table(table(df_sub$clarity))
+round(prop.table(table(df_sub$clarity)) * 100, 1)
+
+##############################
+# 연습문제 3
+################################
+library("car")
+library("fastDummies")
+
+df = read.csv("used_car_price_dataset.csv", stringsAsFactors = FALSE)
+head(df, 2)
+
+# df = df[, -c(1)]
+df = df[, -1] # Id 변수 제거
+df = dummy_cols(df,
+                select_columns = "Fuel_Type",
+                remove_first_dummy = TRUE)
+head(df, 2)
+
+car_test  = df[1:3,]
+car_train = df[4:nrow(df),]
+head(car_test)
+head(car_train)
+
+car_mod1 = lm(Price ~ . -Mfg_Year -Fuel_Type -Mfg_Year, data = car_train)
+summary(car_mod1)
+vif(car_mod1)
+
+car_mod2 = lm(Price ~ . -Mfg_Year -Fuel_Type -Mfg_Year -Mistlamps, data = car_train)
+summary(car_mod2)
+
+car_mod3 = lm(Price ~ . -Mfg_Year -Fuel_Type -Mfg_Year 
+              -Mistlamps -Met_Color, 
+              data = car_train)
+summary(car_mod3)
+
+car_mod4 = lm(Price ~ . -Mfg_Year 
+              -Fuel_Type 
+              -Mistlamps 
+              -Met_Color 
+              -Sport_Model 
+              -Central_Lock
+              -Radio
+              -cc
+              -ABS
+              -CD_Player
+              -Boardcomputer
+              -Metallic_Rim
+              -Power_Steering
+              -Backseat_Divider
+              -Airco
+              -Airbag_1
+              -Airbag_2, 
+              data = car_train)
+mod4_sum = summary(car_mod4)
+str(mod4_sum)
+mod4_sum$r.squared
+mod4_sum$adj.r.squared
+mod4_sum$coefficients
+vars = paste(rownames(mod4_sum$coefficients)[-1], collapse = "+")
+
+model = lm(formula(paste0("Price~", vars)), data = car_train)
+summary(model)
+
+head(car_train, 2)
+t(t(colnames(car_train)))
+car_train[, "conv"] = apply(X = car_train[, c("Automatic", "Automatic_airco",
+                                              "Airco", "Power_Steering", "Powered_Windows",
+                                              "CD_Player", "Radio", "Backseat_Divider")],
+                            MARGIN = 1,
+                            FUN = "sum")
+table(car_train$conv)
+
+model_new = lm(formula(paste0("Price~", vars, "+conv")), data = car_train)
+summary(model_new)
