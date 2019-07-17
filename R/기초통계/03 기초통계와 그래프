@@ -1,0 +1,119 @@
+#==================================================
+# 3. 데이터 탐색
+#==================================================
+rm(list=ls())
+# (1)기초통계량
+# 대푯값
+head(cars)
+
+min(cars$dist)
+max(cars$dist)
+mean(cars$dist)
+median(cars$dist)
+
+mode <- function(x) {
+  t <- table(x)
+  names(t)[which.max(t)]
+}
+mode(cars$dist)
+
+# players
+p1 <- c(7,9,9,10,10,10,10,11,11,13)
+p2 <- c(7,8,9,9,10,10,11,11,12,13)
+p3 <- c(3,3,6,7,7,10,10,10,11,13,30)
+
+mean(p1); median(p1)
+mean(p2); median(p2)
+mean(p3); median(p3)
+
+sd(p1) ; var(p1)
+sd(p2) ; var(p2)
+sd(p3) ; var(p3)
+
+summary(p1)
+summary(p2)
+summary(p3)
+
+# (2) 기본 그래프 ----------------------------- 
+
+# plot
+x <- c(seq(1,10,1))
+x <-c(seq(0,10,2))
+y <-c(0,7,2,9,10,4)
+
+plot(x, y)
+
+# type = 'l' 라인차트
+plot(x, y , type='l')
+plot(x, y , type='l', col = "red")     
+
+#type='o': 라인과 점
+plot(x, y , type='o', col = "red")
+
+#직선 추가하기
+abline(a=0,b=1,col="blue")
+
+# Scatter
+library(ggplot2)
+dia <- data.frame(diamonds)
+plot(dia$carat, dia$price)
+
+# Histogram
+hist(dia$carat, breaks = 100)
+
+# Boxplot
+boxplot(dia$carat)
+boxplot(dia$carat, horizontal=TRUE)
+
+# Barplot
+avgPrice <- aggregate(price ~ color, data=dia, mean)
+barplot(avgPrice$price, names.arg=avgPrice$color)
+
+# (3) ggplot2 그래프 ----------------------------- 
+library(ggplot2)
+
+# 데이터 샘플링. 
+nrow(diamonds)
+sample(nrow(diamonds), 10000)
+
+dsmall <- diamonds[sample(nrow(diamonds), 10000), ]
+str(dsmall)
+
+# Scatter 산점도
+qplot(carat, price, data = dsmall)
+
+# 몇가지 옵션
+qplot(carat, price, data = dsmall, colour = color)
+qplot(carat, price, data = dsmall, shape = cut)
+qplot(carat, price, data = dsmall, colour = cut)
+
+# Adding a smoother to a plot
+qplot(carat, price, data = dsmall, geom = c("point", "smooth"))
+
+# histogram
+qplot(carat, data = dsmall, geom = "histogram", binwidth = .5)
+qplot(carat, data = diamonds, geom = "histogram", fill = color)
+
+# density plot
+qplot(carat, data = diamonds, geom = "density")
+qplot(carat, data = diamonds, geom = "density", colour = color)
+
+# Boxplot
+qplot(color, price / carat, data = dsmall, geom = "boxplot")
+
+# Bar chart
+qplot(color, data = dsmall, geom = "bar")
+
+# facet 옵션
+
+qplot(carat, data = dsmall, facets = color ~ .,
+      geom = "histogram", binwidth = 0.1, xlim = c(0, 3))
+
+qplot(carat, data = diamonds, geom = "histogram", fill = color
+      , binwidth = 0.1, xlim = c(0, 3))
+
+
+# Line chart
+?economics
+head(economics)
+qplot(date, unemploy / pop, data = economics, geom = "line")
