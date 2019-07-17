@@ -1,0 +1,81 @@
+rm(list=ls())
+#==================================================
+# 6 EDA to CDA
+#==================================================
+
+setwd("c:\\temp\\R")
+
+# 데이터 준비 : 타이타닉-----------------------------------------------------------
+titanic.0 <- read.csv("titanic.1.csv" 
+                      , stringsAsFactors = F 
+                      , na.strings=c("","NA","Unknown","NULL"))
+
+titanic.0$Sex <- as.factor(titanic.0$Sex)
+titanic.0$Survived <- as.factor(titanic.0$Survived)
+titanic.0$Embarked <- as.factor(titanic.0$Embarked)
+titanic.0$Pclass <- as.factor(titanic.0$Pclass)
+titanic.0$AgeGroup <- as.factor(titanic.0$AgeGroup)
+
+# 데이터준비 : diamonds
+library(ggplot2)
+dsmall <- diamonds[sample(nrow(diamonds),5000),]
+
+# 6.1 Associative Type I : Correlation ----
+
+# 먼저 공분산을 이해해 봅시다.
+
+qplot(carat, price, data = dsmall)
+qplot(x, price, data = dsmall)
+
+cov(dsmall$carat, dsmall$price)
+cov(dsmall$x, dsmall$price)
+
+# 상관계수로 비교해 봅시다.
+cor(dsmall$carat, dsmall$price)
+cor(dsmall$x, dsmall$price)
+
+# P-value로 살펴본다.
+cor.test(dsmall$carat, dsmall$price)
+cor.test(dsmall$x, dsmall$price)
+
+# 여러 변수들 간의 상관계수
+str(diamonds)
+
+cor(dsmall[sapply(dsmall, is.numeric)])
+pairs(dsmall[sapply(dsmall, is.numeric)])
+
+air2 <-na.omit(airquality)
+pairs(air2)
+
+install.packages("PerformanceAnalytics")
+library(PerformanceAnalytics)
+chart.Correlation(air2)
+
+# 6.2 Associative Type II : Chi-Squared test ----
+install.packages("mosaic")
+library(mosaic)
+
+mosaicplot(Survived ~Sex  + Pclass
+           , data = titanic.0, color = TRUE)
+chisq.test(titanic.0$Sex, titanic.0$Survived)
+
+mosaicplot(Survived ~Pclass  + Pclass
+           , data = titanic.0, color = TRUE)
+chisq.test(titanic.0$Pclass, titanic.0$Survived)
+
+
+# 6.3 Comparative type 1 : T-test ----
+# X(범주형), y(연속형)
+qplot(Sex, Age, data = titanic.0, geom = 'boxplot')
+t.test(Age ~ Sex, data = titanic.0)
+
+
+# 6.4 Comparative type 2 : ANOVA ----
+# X( 범주형 ) , y(연속형)
+aov(Age ~ Pclass, data = titanic.0)
+summary(aov(Age ~ Pclass, data = titanic.0))
+qplot(Pclass,Age,  data = titanic.1, geom = 'boxplot')
+
+# 6.5 로지스틱 회귀 : X(연속형 변수) --> y(범주형 변수)
+a<-glm(Survived ~ Age, family = binomial, data = titanic.0  )
+summary(a)
