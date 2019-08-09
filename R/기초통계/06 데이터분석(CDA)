@@ -23,7 +23,9 @@ dsmall <- diamonds[sample(nrow(diamonds),5000),]
 # 6.1 Associative Type I : Correlation ----
 
 # 먼저 공분산을 이해해 봅시다.
-
+# 두 변인의 단위에 크게 영향을 받는다.
+# 공분산 값자체는 단위에 따라서 크고 작으며 절대적인 기준이 없어서
+# 상관계수를 사용해서 양/음/무 상관관계를 측정한다.
 qplot(carat, price, data = dsmall)
 qplot(x, price, data = dsmall)
 
@@ -52,6 +54,8 @@ library(PerformanceAnalytics)
 chart.Correlation(air2)
 
 # 6.2 Associative Type II : Chi-Squared test ----
+# 카이제곱 검정은 두 집단간의 비율(proportion) 차이를 비교해서
+# 비율이 다르다면 두 집단은 독립적이라고 판단한다.
 install.packages("mosaic")
 library(mosaic)
 
