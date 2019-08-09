@@ -99,16 +99,16 @@ cor(dsmall[sapply(dsmall, is.numeric)])
 chart.Correlation(dsmall[sapply(dsmall, is.numeric)])
 
 # 3. 상관계수가 가장 강한(-1, 1에 가까운) 연속형 변수들을 아래 적으시오.
-x,y
+x,z
 
 # 4. 위에서 연속형변수들에 대해 cor.test를 이용해 P-value를 확인하시오.
-cor.test(dsmall$x, dsmall$y)
+cor.test(dsmall$x, dsmall$z)
 
 # 5. 상관계수가 0에 가장 가까운 연속형 변수들을 아래 적으시오.
 price, depth
 
 # 6. 5번의 변수 역시 cor.test를 이용해 P-value를 확인하시오.
-cor.test(dsmall$price, dsmall$table)
+cor.test(dsmall$price, dsmall$depth)
 
 #==================================================
 # 연습문제 : 카이제곱검정
